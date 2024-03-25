@@ -1,0 +1,3 @@
+Esse projeto contém um servidor Websocket e um cliente que se conecta ao Websocket.
+
+Ambos servidor e cliente conseguem cadastrar seus próprios comandos, para que os dois troquem informações assíncronas por comandos. 
