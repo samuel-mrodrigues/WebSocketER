@@ -1,6 +1,7 @@
 import { EmissorDeEvento } from "../utils/EmissorDeEvento.js";
 import { ServidorWS } from "./ServidorWS/ServidorWS.js"
 import * as TIpagensWebSocketER from "./Tipagem.js";
+import * as TipagensCliente from "../comunicacao/Tipagem.js";
 
 
 export class WebSocketERServidor {
@@ -11,7 +12,7 @@ export class WebSocketERServidor {
 
     /**
      * Comandos cadastrados no servidor
-     * @type {TIpagensWebSocketER.Comando[]}
+     * @type {TipagensCliente.Comando[]}
      */
     #comandos = []
 

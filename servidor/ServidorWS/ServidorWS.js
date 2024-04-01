@@ -1,9 +1,7 @@
 import { WebSocketServer } from "ws"
-import { ClienteWS } from "./ClienteWS/ClienteWS.js";
+import { ClienteConectado } from "./ClienteWS/ClienteWS.js";
 import { EmissorDeEvento } from "../../utils/EmissorDeEvento.js";
-import { v4 as uuidv4 } from 'uuid';
 
-import * as TipagemClienteWS from "./ClienteWS/Tipagem.js";
 import { WebSocketERServidor } from "../WebSocketERServidor.js";
 
 import * as TipagemServidorWS from "./Tipagem.js";
@@ -24,7 +22,7 @@ export class ServidorWS {
 
     /**
      * Clientes que possuem conexão no WebSocket
-     * @type {ClienteWS[]}
+     * @type {ClienteConectado[]}
      */
     #clientes = []
 
@@ -72,7 +70,7 @@ export class ServidorWS {
 
         novoServidor.on('connection', (socket, requisicao) => {
 
-            const novoCliente = new ClienteWS(this, socket);
+            const novoCliente = new ClienteConectado(this, socket);
             this.#clientes.push(novoCliente);
 
             this.#websocketERInstancia.getEmissorEventos().disparaEvento('cliente-conectado', novoCliente);
@@ -105,15 +103,6 @@ export class ServidorWS {
                 resolve(estadoAbrir);
             });
         })
-    }
-
-    /**
-     * Retorna o próximo ID de transmissão disponível único
-     */
-    getProximoIDTransmissao() {
-        const novoId = uuidv4();
-
-        return novoId;
     }
 
     /**
