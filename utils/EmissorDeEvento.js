@@ -4,6 +4,7 @@
  * @property {Function} excluir - Chama essa função para excluir o callback cadastrado
  * @property {String} nomeEvento - Nome do evento em que o callback foi cadastrado
  * @property {Number} idExecucao - ID do callback cadastrado. Usado para solicitar a remoção
+ * @property {Function} renovarTimeout - Se o callback tem expiração, renova o timeout de expiração
  */
 
 /**
@@ -98,17 +99,21 @@ export class EmissorDeEvento {
             this.#eventos.push(evento);
         }
 
-        let idNovaExecucao = evento.adicionarExecucao(callback, parametros);
+        let novaExecucao = evento.adicionarExecucao(callback, parametros);
+        const idExecucao = novaExecucao.getID();
 
         /**
          * @type {AcoesListener}
          */
         const interacoesCallback = {
             excluir: () => {
-                this.removeExecucao(nomeevento, idNovaExecucao);
+                this.removeExecucao(nomeevento, idExecucao);
             },
-            idExecucao: idNovaExecucao,
-            nomeEvento: evento.getEventoNome()
+            idExecucao: idExecucao,
+            nomeEvento: evento.getEventoNome(),
+            renovarTimeout: () => {
+                novaExecucao.renovarTimeoutExpiracao()
+            }
         }
 
         return interacoesCallback;
@@ -251,7 +256,7 @@ class Evento {
      * Adicionar uma nova execução a esse evento
      * @param {Function} funcaocallback - Função a ser executada quando o evento for disparado
      * @param {ParametrosExecucao} parametros - Parametros adicionais para a execução do callback
-     * @returns {Number} - ID unico da execução adicionada
+     * @returns {Execucao} - ID unico da execução adicionada
      */
     adicionarExecucao(funcaocallback, parametros) {
         const novaExecucao = new Execucao(this, this.#contadorExecucao, funcaocallback, parametros);
@@ -261,7 +266,7 @@ class Evento {
 
         this.log(`Adicionado nova execução ${novaExecucao.getID()}`);
 
-        return novaExecucao.getID();
+        return novaExecucao;
     }
 
     /**
@@ -445,6 +450,16 @@ class Execucao {
      */
     getID() {
         return this.#idExecucao;
+    }
+
+    /**
+     * Se habilitado, renova o timeout de expiração
+     */
+    renovarTimeoutExpiracao() {
+        if (!this.#parametros.expiracaoCallback.ativado) return;
+
+        this.#paraCancelamentoAutomatico();
+        this.#ativaCancelamentoAutomatico();
     }
 
     /**

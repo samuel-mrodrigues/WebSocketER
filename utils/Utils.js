@@ -2,14 +2,12 @@
  * Copia todos os valores de objetoAlvo para objetoOrigem
  * @param {{}} objetoTemplate - Objeto contendo as chaves que deseja copiar do alvo
  * @param {*} objetoAlvo - Objeto contendo chaves e valores que serão usados para copiar
- * @param {Object} propriedades - Propriedades do objeto que deseja copiar
- * @param {Boolean} propriedades.ignorarObjetosVazios - Se verdadeiro, uma chave no template que não está no alvo não será copiada com seus subobjetos
  ** Valores do tipo primitivo(string, numero, boolean) serão copiados diretamente
  ** Objetos serão copiados recursivamente da mesma forma que o objeto original
  ** Para arrays, informe o valor que deverá ser retornado(se for um objeto, informe o objeto com as chaves)
  * @returns {Object} - Retorna um novo objeto com as chaves e valores copiados
  */
-export function copiarParaObjeto(objetoTemplate, objetoAlvo, propriedades) {
+export function copiarParaObjeto(objetoTemplate, objetoAlvo) {
     for (const chave in objetoTemplate) {
         if (objetoAlvo.hasOwnProperty(chave)) {
             if (typeof objetoTemplate[chave] === 'object') {
@@ -50,4 +48,14 @@ export function copiarParaObjeto(objetoTemplate, objetoAlvo, propriedades) {
             }
         }
     }
+}
+
+/**
+ * Pausa a execução do código por um determinado período de tempo
+ * @param {number} milliseconds - O número de milissegundos para pausar a execução
+ */
+function pausar(milliseconds) {
+    setTimeout(() => {
+        // Continuar a execução do código após o período de pausa
+    }, milliseconds);
 }
