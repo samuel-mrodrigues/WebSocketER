@@ -5,6 +5,8 @@ import { EmissorDeEvento } from "../../utils/EmissorDeEvento.js";
 import { WebSocketERServidor } from "../WebSocketERServidor.js";
 
 import * as TipagemServidorWS from "./Tipagem.js";
+import { IncomingMessage } from "http"
+import { Socket } from "net";
 
 export class ServidorWS {
 
@@ -43,7 +45,11 @@ export class ServidorWS {
         /**
          * Porta para abrir o servidor
          */
-        porta: 5005
+        porta: 5005,
+        /**
+         * Servidor não é pra abrir a porta.
+         */
+        isHeadless: false,
     }
 
     /**
@@ -51,12 +57,17 @@ export class ServidorWS {
      * @param {WebSocketERServidor} instanciaWebSocketER - Instancai WebSocket de comandos que este servidor pertence
      * @param {Object} propriedades - Propriedades da conexão
      * @param {Number} propriedades.porta - Porta para abrir o servidor
+     * @param {Boolean} propriedades.isHeadless - Abrir o servidor sem utilizar a porta, apenas manter a conexão aberta
      */
     constructor(instanciaWebSocketER, propriedades) {
         this.#websocketERInstancia = instanciaWebSocketER;
         if (propriedades != undefined) {
             if (propriedades.porta != undefined && !isNaN(propriedades.porta)) {
                 this.#configuracoes.porta = propriedades.porta;
+            }
+
+            if (propriedades.isHeadless != undefined) {
+                this.#configuracoes.isHeadless = propriedades.isHeadless;
             }
         }
     }
@@ -66,42 +77,68 @@ export class ServidorWS {
      * @returns {Promise<TipagemServidorWS.PromiseAbrirWebSocket>}
      */
     async abrirWebSocket() {
-        const novoServidor = new WebSocketServer({ port: this.#configuracoes.porta });
+        /**
+         * @type {TipagemServidorWS.PromiseAbrirWebSocket}
+         */
+        const estadoAbrir = {
+            sucesso: false,
+            porta: -1
+        }
 
-        novoServidor.on('connection', (socket, requisicao) => {
+        if (!this.#configuracoes.isHeadless) {
+            this.#servidorWebsocket = new WebSocketServer({ port: this.#configuracoes.porta });
+        } else {
+            this.#servidorWebsocket = new WebSocketServer({ noServer: true });
+        }
 
+        this.#servidorWebsocket.on('connection', (socket, requisicao) => {
             const novoCliente = new ClienteConectado(this, socket);
             this.#clientes.push(novoCliente);
 
             this.#websocketERInstancia.getEmissorEventos().disparaEvento('cliente-conectado', novoCliente);
         })
 
-        this.#servidorWebsocket = novoServidor;
+        if (this.#configuracoes.isHeadless) {
+            estadoAbrir.sucesso = true;
+            return estadoAbrir;
+        } else {
+            return new Promise((resolve) => {
 
-        return new Promise((resolve) => {
-            /**
-             * @type {TipagemServidorWS.PromiseAbrirWebSocket}
-             */
-            const estadoAbrir = {
-                sucesso: false,
-                porta: -1
-            }
+                this.#servidorWebsocket.on('close', () => {
+                    this.#estado.isConectado = false;
+                    resolve(estadoAbrir);
+                })
 
-            novoServidor.on('close', () => {
-                this.#estado.isConectado = false;
-                resolve(estadoAbrir);
+                this.#servidorWebsocket.on('error', (erro) => {
+                })
+
+                this.#servidorWebsocket.on('listening', () => {
+                    this.#estado.isConectado = true;
+
+                    estadoAbrir.sucesso = true;
+                    estadoAbrir.porta = this.#configuracoes.porta;
+                    resolve(estadoAbrir);
+                });
             })
+        }
+    }
 
-            novoServidor.on('error', (erro) => {
-            })
+    /**
+     * Retorna a instancia do conexão do servidor WebSocket
+     */
+    geConexaoServidor() {
+        return this.#servidorWebsocket;
+    }
 
-            novoServidor.on('listening', () => {
-                this.#estado.isConectado = true;
-
-                estadoAbrir.sucesso = true;
-                estadoAbrir.porta = this.#configuracoes.porta;
-                resolve(estadoAbrir);
-            });
+    /**
+     * Adicionar um novo cliente a lista de clientes conectados utilizando o objeto IncomingMessage 
+     * @param {IncomingMessage} incomingMessage - Objeto de requisição do servidor HTTP
+     * @param {Socket} socket - Instancia do socket
+     * @param {String} headers - Cabeçalhos da requisição
+     */
+    adicionarClienteHTTPGet(incomingMessage, socket, headers = '') {
+        this.#servidorWebsocket.handleUpgrade(incomingMessage, socket, headers, (cliente) => {
+            this.#servidorWebsocket.emit('connection', cliente, incomingMessage);
         })
     }
 

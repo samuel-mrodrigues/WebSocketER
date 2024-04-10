@@ -1,6 +1,6 @@
 {
-  "name": "websocketer",
-  "version": "1.0.0",
+  "name": "keest_websocketer_comandos",
+  "version": "1.0.1",
   "description": "Esse projeto contém um servidor Websocket e um cliente que se conecta ao Websocket.",
   "type": "module",
   "main": "index.js",
@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Samuel Machado Rodrigues",
   "license": "ISC",
   "dependencies": {
     "uuid": "^9.0.1",

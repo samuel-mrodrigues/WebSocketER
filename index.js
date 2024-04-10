@@ -1,4 +1,4 @@
-import { iniciarServidor } from "./teste_servidor.js";
-import { iniciarCliente } from "./teste_cliente.js";
+import { ClienteWebSocketER } from "./cliente/ClienteWebSocketER.js";
+import { WebSocketERServidor } from "./servidor/WebSocketERServidor.js";
 
 export { WebSocketERServidor, ClienteWebSocketER }

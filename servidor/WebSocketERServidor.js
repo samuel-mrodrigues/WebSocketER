@@ -5,6 +5,7 @@ import * as TipagensCliente from "../comunicacao/Tipagem.js";
 
 
 export class WebSocketERServidor {
+
     /**
      * @type {ServidorWS}
      */
@@ -16,19 +17,19 @@ export class WebSocketERServidor {
      */
     #comandos = []
 
-    #parametros = {
-        porta: 5005
-    }
-
     #emissorEvento = new EmissorDeEvento('WebSocketERServidor');
 
     /**
      * Instanciar um novo servidor
-     * @param {Number} porta - Porta para iniciar o servidor
+     * @param {Object} propriedades - Propriedades da conexão.
+     * @param {Number} propriedades.porta - Porta para iniciar o servidor
+     * @param {Boolean} propriedades.isHeadless - Se o servidor deve ser aberto em uma porta ou ficar esperando conexões de outra forma.
      */
-    constructor(porta) {
-        this.#parametros.porta = porta;
-        this.#servidorGerenciaConexoes = new ServidorWS(this, { porta: porta });
+    constructor(propriedades) {
+        this.#servidorGerenciaConexoes = new ServidorWS(this, {
+            porta: propriedades != undefined && propriedades.porta != undefined ? propriedades.porta : 5005,
+            isHeadless: propriedades.isHeadless != undefined ? propriedades.isHeadless != undefined : false
+        });
     }
 
     /**
@@ -36,6 +37,13 @@ export class WebSocketERServidor {
      */
     iniciarServidor() {
         return this.#servidorGerenciaConexoes.abrirWebSocket();
+    }
+
+    /**
+     * Retorna o gerencaidor do servidor websocket
+     */
+    getGerenciadorWebSocket() {
+        return this.#servidorGerenciaConexoes;
     }
 
     /**
