@@ -15,7 +15,6 @@ export class ClienteWS {
      */
     #mensagensPendentes = []
 
-
     /**
      * Instanciar um novo cliente
      */
@@ -29,6 +28,13 @@ export class ClienteWS {
         const novoId = uuidv4();
 
         return novoId;
+    }
+    /**
+     * Escutar pelo evento quando o cliente for desconectado
+     * @param {TipagemClienteWS.CallbackOnClienteDesconectado} callback - Função a ser executada quando o cliente desconectar
+     */
+    onClienteDesconectado(callback) {
+        this.getEmissorEventos().addEvento('desconectado', callback);
     }
 
     /**

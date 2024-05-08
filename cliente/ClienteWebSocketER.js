@@ -84,6 +84,10 @@ export class ClienteWebSocketER extends ClienteWS {
             this.processaMensagemWebSocket(mensagemBuffer);
         })
 
+        novaConexao.on('close', (codigo, razao) => {
+            this.getEmissorEventos().disparaEvento('desconectado', codigo, razao);
+        })
+
         this.#conexaoWebSocket = novaConexao;
 
         return new Promise(resolve => {

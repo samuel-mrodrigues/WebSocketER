@@ -1,9 +1,8 @@
-import * as TipagemCliente from '../comunicacao/Tipagem.js';
-import { ClienteWS } from "../comunicacao/Cliente.js";
+import { ClienteConectado } from "./ServidorWS/ClienteWS/ClienteWS.js";
 
 /**
  * @callback OnClienteConectado - Uma função a ser executada quando um novo cliente se conecta ao servidor
- * @param {ClienteWS} cliente - Cliente que se conectou
+ * @param {ClienteConectado} cliente - Cliente que se conectou
  */
 
 /**

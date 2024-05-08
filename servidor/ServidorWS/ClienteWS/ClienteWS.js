@@ -21,6 +21,12 @@ export class ClienteConectado extends ClienteWS {
     #socket;
 
     /**
+     * Headers que foram recebidos na solicitação WebSocket
+     * @type {{headerNome: String, headerValor: String}[]}
+     */
+    headersRecebidos = []
+
+    /**
      * Instanciar um novo cliente WebSocket para o servidor
      * @param {ServidorWS} instanciaServidor 
      * @param {WebSocket} websocketSocket 
@@ -39,6 +45,11 @@ export class ClienteConectado extends ClienteWS {
         // Quando o cliente devolver uma resposta ao servidor pra esse cara
         this.#socket.on('message', (bufferMensagem) => {
             this.processaMensagemWebSocket(bufferMensagem);
+        })
+
+        // Notificar quando for desconectado
+        this.#socket.on('close', (codigo, razao) => {
+            this.getEmissorEventos().disparaEvento('desconectado', codigo, razao);
         })
 
         this.getComandos = () => {

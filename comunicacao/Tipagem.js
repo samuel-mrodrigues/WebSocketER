@@ -147,5 +147,11 @@ export const TiposDeTransmissao = {
  * @param {TipagensClienteWS.TransmissaoWebSocket} transmissao - Transmissão original recebida
  */
 
+/**
+ * @callback CallbackOnClienteDesconectado - uma função a ser executada quando o cliente desconectar
+ * @param {Number} codigo - Código de desconexão
+ * @param {Buffer} razao - Razão da desconexão
+ */
+
 
 export const a = 1;

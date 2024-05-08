@@ -5,21 +5,20 @@ import fs from "fs";
 async function testarServidor() {
     console.log(`Iniciando testes`);
 
-    const servidorWs = new WebSocketERServidor({ porta: 5005, isHeadless: true });
+    const servidorWs = new WebSocketERServidor({ porta: 5005 });
     servidorWs.onClienteConectado(async (cliente) => {
         console.log(`Novo cliente foi conectado ao servidor.`);
+
+        cliente.onClienteDesconectado((codigo, razao) => {
+            console.log(`O cliente foi desconectado do servidor. Código: ${codigo}, razao: ${razao}`);
+        })
+
+        console.log(`Segue os headers recebidos:`);
+        console.log(cliente.headersRecebidos);
+
     });
 
     const statusAbreServidor = await servidorWs.iniciarServidor();
-
-    const servidorHttp = createServer((req, res) => {
-
-        console.log(`Nova requisição servidor`);
-        servidorWs.getGerenciadorWebSocket().adicionarClienteHTTPGet(req, req.socket, req.headers);
-
-    });
-
-    servidorHttp.listen(8009)
 }
 
 testarServidor();

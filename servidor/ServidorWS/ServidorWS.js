@@ -95,6 +95,15 @@ export class ServidorWS {
             const novoCliente = new ClienteConectado(this, socket);
             this.#clientes.push(novoCliente);
 
+            for (const headerNome in requisicao.headers) {
+                const headerValor = requisicao.headers[headerNome];
+
+                novoCliente.headersRecebidos.push({
+                    headerNome: headerNome,
+                    headerValor: headerValor
+                })
+            }
+
             this.#websocketERInstancia.getEmissorEventos().disparaEvento('cliente-conectado', novoCliente);
         })
 
