@@ -3,6 +3,7 @@ import * as TipagemComunicacaoCliente from "../../../comunicacao/Tipagem.js";
 import { ServidorWS } from "../ServidorWS.js"
 import { WebSocket } from "ws"
 
+
 /**
  * Uma conexão do servidor com o cliente para comunicação
  */
@@ -24,18 +25,29 @@ export class ClienteConectado extends ClienteWS {
      * Headers que foram recebidos na solicitação WebSocket
      * @type {{headerNome: String, headerValor: String}[]}
      */
-    headersRecebidos = []
+    #headersRecebidos = []
+
+    /**
+     * Endereço IP do cliente conectado
+     */
+    #enderecoIp = ''
 
     /**
      * Instanciar um novo cliente WebSocket para o servidor
-     * @param {ServidorWS} instanciaServidor 
-     * @param {WebSocket} websocketSocket 
+     * @param {ServidorWS} instanciaServidor - Instancia do servidor ao qual esse cliente pertence 
+     * @param {WebSocket} websocketSocket - Socket de comunicação com o cliente
+     * @param {Object} parametros - Parametros recebidos na conexão do cliente
+     * @param {String} parametros.enderecoIp - Endereço IP do cliente conectado
+     * @param {{headerNome: String, headerValor: String}[]} parametros.headers - Headers recebidos na solicitação WebSocket
      */
-    constructor(instanciaServidor, websocketSocket) {
+    constructor(instanciaServidor, websocketSocket, parametros) {
         super();
 
         this.#instanciaServidor = instanciaServidor;
         this.#socket = websocketSocket;
+
+        this.#headersRecebidos = parametros.headers;
+        this.#enderecoIp = parametros.enderecoIp;
 
         // Quando o servidor quiser enviar uma mensagem para o cliente
         this.getEmissorEventos().addEvento('enviar-mensagem', (webSocketMensagem) => {
@@ -59,6 +71,27 @@ export class ClienteConectado extends ClienteWS {
         this.executorDeComando = async (solicitacao, transmissao) => {
             return await this.#processarExecucaoComando(solicitacao, transmissao);
         }
+    }
+
+    /**
+     * Descontar essa conexão do cliente
+     */
+    desconectar() {
+        this.#socket.close('66666', 'Desconectado pelo servidor');
+    }
+
+    /**
+     * Enviar uma mensagem para o cliente
+     */
+    getHeaders() {
+        return this.#headersRecebidos;
+    }
+
+    /**
+     * Retorna o endereço IP do cliente conectado
+     */
+    getIP() {
+        return this.#enderecoIp;
     }
 
     /**

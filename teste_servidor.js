@@ -7,15 +7,11 @@ async function testarServidor() {
 
     const servidorWs = new WebSocketERServidor({ porta: 5005 });
     servidorWs.onClienteConectado(async (cliente) => {
-        console.log(`Novo cliente foi conectado ao servidor.`);
+        console.log(`Novo cliente foi conectado ao servidor pelo IP ${cliente.getIP()}.`);
 
         cliente.onClienteDesconectado((codigo, razao) => {
             console.log(`O cliente foi desconectado do servidor. Código: ${codigo}, razao: ${razao}`);
         })
-
-        console.log(`Segue os headers recebidos:`);
-        console.log(cliente.headersRecebidos);
-
     });
 
     const statusAbreServidor = await servidorWs.iniciarServidor();

@@ -91,19 +91,31 @@ export class ServidorWS {
             this.#servidorWebsocket = new WebSocketServer({ noServer: true });
         }
 
+        // Toda vez que um novo cliente se conectar
         this.#servidorWebsocket.on('connection', (socket, requisicao) => {
-            const novoCliente = new ClienteConectado(this, socket);
-            this.#clientes.push(novoCliente);
 
+            // Headers recebidos na conexão
+            const headersRecebidos = []
             for (const headerNome in requisicao.headers) {
                 const headerValor = requisicao.headers[headerNome];
 
-                novoCliente.headersRecebidos.push({
+                headersRecebidos.push({
                     headerNome: headerNome,
                     headerValor: headerValor
                 })
             }
 
+            // Endereço IP do cliente
+            const enderecoIP = requisicao.socket.remoteAddress;
+
+            // Instanciar um cliente
+            const novoCliente = new ClienteConectado(this, socket, {
+                enderecoIp: enderecoIP,
+                headers: headersRecebidos
+            });
+            this.#clientes.push(novoCliente);
+            
+            // Disparar que houve um novo cliente conectado pra meros usuarios mortais poderem fazer oq quiser
             this.#websocketERInstancia.getEmissorEventos().disparaEvento('cliente-conectado', novoCliente);
         })
 

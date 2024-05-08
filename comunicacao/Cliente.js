@@ -34,7 +34,7 @@ export class ClienteWS {
      * @param {TipagemClienteWS.CallbackOnClienteDesconectado} callback - Função a ser executada quando o cliente desconectar
      */
     onClienteDesconectado(callback) {
-        this.getEmissorEventos().addEvento('desconectado', callback);
+        this.getEmissorEventos().addEvento('desconectado', callback, {excluirAposExecutar: false});
     }
 
     /**
