@@ -20,7 +20,6 @@ export class ClienteWebSocketER extends ClienteWS {
      */
     #parametros = {
         host: '',
-        porta: ''
     }
 
     /**
@@ -34,23 +33,36 @@ export class ClienteWebSocketER extends ClienteWS {
     }
 
     /**
+     * Comandos disponiveis no cliente
      * @type {TipagemCliente.Comando[]}
      */
     #comandos = []
 
+    /**
+     * Emissor de eventos do Cliente
+     */
     #emissorEventos = new EmissorDeEvento('Cliente');
+
+    /**
+     * Headers opcionais que são enviados junto na requisição
+     * @type {{nome: String, valor: String}[]}
+     */
+    #headers = []
 
 
     /**
      * Iniciar a conexão com um servidor WebSocketER
      * @param {String} host - Endereço do servidor
-     * @param {Number} porta - Porta
+     * @param {{nome: String, valor: String}[]} headers - Headers opcionais para enviar na conexão com o servidor WebSocketER
      */
-    constructor(host, porta) {
+    constructor(host, headers) {
         super();
 
         this.#parametros.host = host;
-        this.#parametros.porta = porta;
+
+        if (headers != undefined && Array.isArray(headers)) {
+            this.#headers = headers;
+        }
 
         // Quando o servidor quiser enviar uma mensagem para o cliente
         this.getEmissorEventos().addEvento('enviar-mensagem', (webSocketMensagem) => {
@@ -76,10 +88,14 @@ export class ClienteWebSocketER extends ClienteWS {
          */
         const retornoConectar = {
             sucesso: false,
-            porta: -1
         }
 
-        const novaConexao = new WebSocket(`ws://${this.#parametros.host}:${this.#parametros.porta}`)
+        let headersParaEnviar = {};
+        for (const headerObj of this.#headers) {
+            headersParaEnviar[headerObj.nome] = headerObj.valor;
+        }
+
+        const novaConexao = new WebSocket(`ws://${this.#parametros.host}`, { headers: headersParaEnviar })
         novaConexao.on('message', (mensagemBuffer) => {
             this.processaMensagemWebSocket(mensagemBuffer);
         })
@@ -102,10 +118,16 @@ export class ClienteWebSocketER extends ClienteWS {
             novaConexao.on('open', () => {
                 this.#estado.isConectado = true;
                 retornoConectar.sucesso = true;
-                retornoConectar.porta = this.#parametros.porta;
                 resolve(retornoConectar);
             });
         })
+    }
+
+    /**
+     * Desconectar do servidor WebSocketER
+     */
+    desconectar() {
+        this.#conexaoWebSocket.close();
     }
 
     /**
