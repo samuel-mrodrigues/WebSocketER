@@ -51,7 +51,7 @@ export class WebSocketERServidor {
      * @param {String} comando - Nome do comando
      * @param {TIpagensWebSocketER.CallbackExecutarComando} callback - Função a ser executada quando o comando for solicitado
      */
-    adicionadComando(comando, callback) {
+    adicionarComando(comando, callback) {
         /**
          * @type {TIpagensWebSocketER.Comando}
          */

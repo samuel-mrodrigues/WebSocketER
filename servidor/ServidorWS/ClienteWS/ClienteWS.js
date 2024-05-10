@@ -81,7 +81,7 @@ export class ClienteConectado extends ClienteWS {
     }
 
     /**
-     * Enviar uma mensagem para o cliente
+     * Retorna os headers que foram enviados na requisição inicial do WebSocket
      */
     getHeaders() {
         return this.#headersRecebidos;
