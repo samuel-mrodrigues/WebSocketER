@@ -49,6 +49,10 @@ export class ClienteWebSocketER extends ClienteWS {
      */
     #headers = []
 
+    /**
+     * SET Interval do ping que testa se a comunicação ta ok
+     */
+    #idSetIntervalPing = -1;
 
     /**
      * Iniciar a conexão com um servidor WebSocketER
@@ -100,16 +104,20 @@ export class ClienteWebSocketER extends ClienteWS {
             this.processaMensagemWebSocket(mensagemBuffer);
         })
 
-        novaConexao.on('close', (codigo, razao) => {
-            this.getEmissorEventos().disparaEvento('desconectado', codigo, razao);
-        })
-
         this.#conexaoWebSocket = novaConexao;
 
+        const idPingSetInterval = setInterval(() => {
+            novaConexao.ping();
+        }, 5000);
+
+        this.#idSetIntervalPing = idPingSetInterval;
+
         return new Promise(resolve => {
-            novaConexao.on('close', (codigo) => {
+            novaConexao.on('close', (codigo, razao) => {
                 this.#estado.isConectado = false;
+                this.getEmissorEventos().disparaEvento('desconectado', codigo, razao)
                 resolve(retornoConectar);
+                clearInterval(this.#idSetIntervalPing);
             });
 
             novaConexao.on('error', (erro) => {
